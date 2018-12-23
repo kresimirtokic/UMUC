@@ -1,0 +1,1 @@
+mymorestrings.MyMoreStrings
