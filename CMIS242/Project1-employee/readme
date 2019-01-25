@@ -1,0 +1,2 @@
+This project reads employee data from a text file line by, then splits it and converts the strings to integers. 
+It demonstrates OOP, super/sub classes, overrides, etc.
