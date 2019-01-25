@@ -1,0 +1,8 @@
+2014 Employee Bouvier,Selma 3250
+2015 Salesman Flanders,Ned 1000 100000
+2014 Executive Burns,Montgomery 10000 100
+2015 Employee Simpson,Bart 1500
+2015 Salesman Albertson,Jeff 2500 10000000
+2014 Employee Simpson,Homer 3750
+2014 Salesman Gunderson,Gil 1000 5000
+2015 Executive Nahasapeemapetilon,Apu 3100 50
