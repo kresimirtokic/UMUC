@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<!-- Kresimir Tokic -->
+<!-- SDEV300 Lab1 -->
+<!-- May 24, 2019 -->
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Custom Guitar Resellers </title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Sonsie+One" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+  <h1>Welcome to Custom Guitar Resellers ! </h1>
+  <p>
+    <nav>
+      <div id="navBar">
+        <a href="index.html">Home</a>
+        <a href="guitars.html">Guitars</a>
+        <a href="orderForm.html">Order Form</a>
+        <a href="partners.html">Partners</a>
+      </div>
+    </nav>
+    <!-- Order Form -->
+    <form>
+              <h1>Payment form</h1>
+              <br>Required fields are followed by <strong><abbr title="required">*</abbr></strong>.
+  </p>
+          <section>
+                <h2>Contact information</h2>
+                <p>
+                    <label for="name">
+                        <span> First Name: </span>
+                        <strong><abbr title="required">*</abbr></strong>
+                      </label>
+                    <input type="text" id="firstName" name="firstName">
+                  </p>
+    <p>
+                    <label for="name">
+                        <span> Last Name: </span>
+                        <strong><abbr title="required">*</abbr></strong>
+                      </label>
+                    <input type="text" id="lastName" name="lastName">
+                  </p>
+                <p>
+
+                 <label for="mail">
+                        <span>E-mail: </span>
+                        <strong><abbr title="required">*</abbr></strong>
+                      </label>
+                    <input type="email" id="mail" name="userEmail">
+                  </p>
+                   <input type="checkbox" name="mailingList" value="mailingList"> Sign Up For Mailing List<br>
+    <p>
+                    <label for="birthYear">
+                        <span>Birth Year: </span>
+                        <strong><abbr title="required">*</abbr></strong>
+                      </label>
+                    <input type="text" id="birthYear" name="birthYear">
+                  </p>
+    <p>
+                    <label for="streetAddress">
+                        <span>Street Address: </span>
+                        <strong><abbr title="required">*</abbr></strong>
+                      </label>
+                    <input type="text" id="streetAddress" name="streetAddress">
+                  </p>
+    <p>
+                    <label for="city">
+                        <span>City: </span>
+                        <strong><abbr title="required">*</abbr></strong>
+                      </label>
+                    <input type="text" id="city" name="city">
+                  </p>
+    <p>
+                    <label for="state">
+                        <span>State: </span>
+                        <strong><abbr title="required">*</abbr></strong>
+                      </label>
+                    <input type="text" id="state" name="state">
+                  </p>
+    <p>
+                    <label for="zipcode">
+                        <span>Zipcode: </span>
+                        <strong><abbr title="required">*</abbr></strong>
+                      </label>
+                    <input type="number" id="zipcode" name="zipcode">
+                  </p>
+
+          <input type="radio" name="shipping" value="shipping" checked> Ship to above address (+$50)<br>
+          <input type="radio" name="localPickup" value="localPickup">Local Pick Up (Free)<br>
+
+  </section>
+  <section>
+    <h2>Products</h2>
+    <p>
+      <label for="products">
+        <span>Guitar: </span>
+        <select id="products" name="guitars">
+          <option value="solidDual">Solid Body Dual Pick Up</option>
+          <option value="solidSingle">Solid Body Single Pick Up</option>
+          <option value="hollowBody">Hollow Body</option>
+          <option value="semiHollowBody">Semi Hollow Body</option>
+          <option value="acoustic">Acoustic</option>
+          <option value="pBass">P-Bass</option>
+          <option value="sgBass">SG-Bass</option>
+          <option value="5Bass">5-String Bass</option>
+          <option vlaue="acousticBass">Acoustic Bass</option>
+          <option value="DIY">DIY Guitar Kit</option>
+        </select>
+        <p>
+          <label for="quantity">
+            <span>Quantity: </span>
+            <strong><abbr title="required">*</abbr></strong>
+            <input type="number" name="quantity">
+          </label>
+  </section>
+          <section>
+                <h2>Payment information</h2>
+                <p>
+                    <label for="card">
+                        <span>Card type:</span>
+                      <select id="card" name="usercard">
+                          <option value="visa">Visa</option>
+                          <option value="mc">Mastercard</option>
+                          <option value="amex">American Express</option>
+          <option value="discover">Discover</option>
+                       
+        </select>
+                    </p>
+                <p>
+                    <label for="number">
+                        <span>Card number:</span>
+                        <strong><abbr title="required">*</abbr></strong>
+                      </label>
+                      <input type="number" id="number" name="cardnumber">
+                  </p>
+                <p>
+                    <label for="date">
+                        <span>Expiration date:</span>
+                        <strong><abbr title="required">*</abbr></strong>
+                      </label>
+                    <input type="date" id="date" name="expiration">
+                  </p>
+            </section>
+  <section>
+    <h2>Comments</h2>
+    <p>
+      <label for="comments">
+        <span>Comments:</span>
+        <textarea id="comments" name="comments"></textarea>
+      </label>
+  </section>
+          <section>
+                <p> <button type="submit">Submit</button>
+      <button type="reset" value="Reset">Reset</button></p>
+            </section>
+
+     
+  </form>
+
+  <button onclick="goBack()">Go Back</button>
+
+  <script>
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+
+</body>
+
+</html>
