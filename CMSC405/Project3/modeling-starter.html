@@ -1,0 +1,384 @@
+﻿<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Three.js Modeling</title>
+    <style>
+    </style>
+    <script src="three.min.js"></script>
+    <script>
+
+        /* This is a starter file for experimenting with 3D animated models
+         * in three.js.  The user can rotate the model using the keyboard, and
+         * can turn animation on and off.  As an example, it shows  a sphere
+         * rotating around a cube.
+         *
+         * To make your own model, add any global variables that you need for
+         * animating the model, build the model in the createWorld() function,
+         * and update the animation variables in the updateForFrame() function.
+         *
+         * For a more complex modeling example using this framework,
+         * see diskworld-1.html.
+         */
+
+        "use strict";
+
+        var scene, camera, renderer;  // Three.js rendering basics.
+
+        var canvas;  // The canvas on which the image is rendered.
+
+
+        var model;   // Contains the visible objects in the scene, but
+        // not the lights or camera.  The model can be
+        // rotated using the keyboard.
+
+        // Nodes in the scene graphs that are modified as part of the animation:
+        var sphereRotator;  // The sphere is a child of this object; rotating
+        // this object about the y-axis rotates the sphere.
+
+        var animating = false;  // This is set to true when an animation is running
+        var animatingLight = false;
+
+        var xPos = 1;
+        var yPos = -1;
+        var zPos = 1;
+        var positionToggle = true;
+
+        var firstLight;
+        var secondLight;
+        var thirdLight;
+
+        var surfaceRotator;
+        var cylinderRotator;
+        var helixRotator;
+        var lightRotator;
+
+        /*  Create the scene graph.  This function is called once, as soon as the page loads.
+         *  The renderer has already been created before this function is called.
+         */
+        function createWorld() {
+            renderer.setClearColor(0x444444);  // Set background color (0x444444 is dark gray).
+            scene = new THREE.Scene();
+
+            // create a camera, sitting on the positive z-axis.  The camera is not part of the scene.
+            camera = new THREE.PerspectiveCamera(45, canvas.width / canvas.height, 1, 30);
+            camera.position.z = 15;
+
+            // create some lights and add them to the scene.
+            //scene.add(new THREE.DirectionalLight(0xffffff, 1)); // dim light shining from above
+            firstLight = new THREE.DirectionalLight(0x0000ff, 1); //blue light
+            firstLight.position.set(0, -1, -1);
+            scene.add(firstLight);
+
+            secondLight = new THREE.DirectionalLight(0xff0000, 0.4);  //red light
+            secondLight.position.set(0, 1, 1);  // shines down (x = 0,y = 1, z = 1)
+            scene.add(secondLight);
+
+            thirdLight = new THREE.DirectionalLight(0x00ff00, 0.4);  // green
+            thirdLight.position.set(1, 0, 0);
+            scene.add(thirdLight);
+
+            var hemiLight = new THREE.HemisphereLight(0xfffff, 0x000000, 0.09);
+            scene.add(hemiLight);
+
+            // create the model
+            model = new THREE.Object3D();
+            model.add(new THREE.Mesh(  // add a big cube at the origin; the cube is not animated
+                new THREE.BoxGeometry(2, 2, 2),
+                new THREE.MeshLambertMaterial({ color: 0x8e8e8e })
+            ));
+
+            var cylinder = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 8), //cylinder shape
+                new THREE.MeshLambertMaterial({ color: 0x8e8e8e })
+            );
+            cylinderRotator = new THREE.Object3D();
+            cylinderRotator.add(cylinder);
+            model.add(cylinderRotator);
+            //model.add(new THREE.Mesh(  // A tall narrow cylinder on the axis of rotation
+
+            var sphere = new THREE.Mesh( //sphere object
+                new THREE.SphereGeometry(1, 32, 16),
+                new THREE.MeshPhongMaterial({
+                    color: "white",
+                    specular: 0x101010,
+                    shininess: 32
+                })
+            );
+            sphere.position.x = 4;
+            sphereRotator = new THREE.Object3D();
+            sphereRotator.add(sphere);
+            //var sphereLight = new THREE.Ambient(0xffffff, 1);
+            //sphereLight.position.set(0, -1, -1);
+            scene.add(firstLight);
+            model.add(sphereRotator);
+
+            model.rotation.set(0.2, 0, 0); // Tip it forward a bit, so we're not looking at it edge-on.
+
+
+            /* A function for creating a parametric surface.  The function takes two numbers, u and v,
+             * as parameters and returns a THREE.Vector3.  When used to create a THREE.ParametricGeometry,
+             * the function will be called for values of u and v ranging from 0.0 to 1.0.  The return
+             * value represents a point on the surface.
+             */
+            function surfaceFunction(u, v) {
+                var x, y, z;  // A point on the surface, calculated from u,v.
+                // u  and v range from 0 to 1.
+                x = 7 * (u - 0.5);  // x and z range from -10 to 10
+                z = 7 * (v - 0.5);
+                y = 2 * (Math.sin(x / 2) * Math.cos(z));
+                return new THREE.Vector3(x, y, z);
+            }
+            /* Create the geometry the 2nd and 3rd parameters are the number of subdivisions in
+             * the u and v directions, respectively.
+             */
+            var surfaceGeometry = new THREE.ParametricGeometry(surfaceFunction, 64, 64);
+
+            var material = new THREE.MeshPhongMaterial({
+                color: "white",
+                specular: 0x080808,
+                side: THREE.DoubleSide
+            });
+
+            var surface = new THREE.Mesh(surfaceGeometry, material);
+            surfaceRotator = new THREE.Object3D();
+            surfaceRotator.add(surface);
+            model.add(surfaceRotator);
+
+
+
+
+            var material = new THREE.MeshPhongMaterial({
+                color: "white",
+                specular: 0x080808,
+                side: THREE.DoubleSide
+            });
+
+            /* Create a curve object.  A THREE.Curve needs a "getPoint" function to
+             * define the curve.  The parameter to getPoint() is a number that ranges
+             * from 0.0 to 1.0.  The return value is a vector.  It can return THREE.Vector2
+             * for a curve in the xy-plane, or THREE.Vector3 for a 3D curve. In this
+             * case, the function defines a helix that wraps around the y-axis.
+             */
+            var helix = new THREE.Curve();
+            helix.getPoint = function (t) {
+                var s = (t - 0.5) * 4 * Math.PI;
+                // As t ranges from 0 to 1, s ranges from -6*PI to 6*PI, for 6 turns of the helix.
+                return new THREE.Vector3(
+                    2 * Math.cos(s),
+                    s,
+                    2 * Math.sin(s)
+                );
+            }
+
+            /* The parameters are:  (1) a THREE.Curve to define the curve; the geometry is a
+             * tube with the curve running along the center of the tube; (2) the number of
+             * segments of the tube along the length of the curve; (3) the radius of the
+             * tube; (3) the number of segments around the cirumference of the tube.
+             * The two tubes have radius 2.5 and 1 respectively.
+             */
+            //var tubeGeometry1 = new THREE.TubeGeometry(helix, 128, 2.5, 32);
+            //var tube1 = new THREE.Mesh(tubeGeometry1, material);
+            //tube1.position.x = 10; // Move to the right, to separate the two tubes for viewing.
+            //scene.add(tube1);
+
+            var tubeGeometry2 = new THREE.TubeGeometry(helix, 128, 1, 2);
+            var tube2 = new THREE.Mesh(tubeGeometry2, material);
+            tube2.position.x = 0; // Move to the left, to separate the two tubes for viewing.
+            helixRotator = new THREE.Object3D();
+            helixRotator.add(tube2);
+            model.add(helixRotator);
+
+
+            var material = new THREE.MeshPhongMaterial({
+                color: "yellow",
+                //specular: 0x080808,
+                side: THREE.DoubleSide
+            });
+
+            /*  Create a path.  A THREE.Shape has methods for defining a path in 2D that are similar
+             *  to the ones used in the HTML canvas 2D graphics API:  moveTo(x,y), lineTo(x,y),
+             *  quadraticCurveTo(cx,cy,x,y), and bezierCurveTo(c1x,c1y,c2x,c2y,x,y).  (These functions
+             *  are defined in THREE.Path, which is the superclass of THREE.Shape.)  Note that
+             *  a shape can be composed of several disconnected segments, and that it can have holes.
+             *  Here, I make a very simple "teardrop" shape.
+             */
+            var path = new THREE.Shape();
+            path.moveTo(0, 2.5);
+            path.bezierCurveTo(0, 1.25, 5, -2.5, 0, -2.5);
+            path.bezierCurveTo(-5, -2.5, 0, 1.25, 0, 2.5);
+
+            // Create a 3D shape by extruding the path by 6 units in the z-direction, with a bevel.
+            var extrudeGeom1 = new THREE.ExtrudeGeometry(path, {
+                curveSegments: 32,  // How many points on each part of the path
+                amount: 1.5,          // size in the 3rd dimension; how far to extrude.
+                bevelSize: .5,
+                bevelThickness: .5
+            });
+            var extrude1 = new THREE.Mesh(extrudeGeom1, material);
+            extrude1.position.z = -10;
+            model.add(extrude1);
+
+            //all the shapes are one model in the scene
+            scene.add(model);
+        }
+
+
+        /*  Render the scene.  This is called for each frame of the animation.
+         */
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+
+        /*  When an animation is in progress, this function is called just before rendering each
+         *  frame of the animation, to make any changes necessary in the scene graph to prepare
+         *  for that frame.
+         */
+        function updateForFrame() {
+            sphereRotator.rotation.y += 0.03;
+            surfaceRotator.rotation.x += 0.03;
+            cylinderRotator.rotation.z += 0.03;
+            helixRotator.rotation.y += 0.03;
+        }
+
+        function updateLightForFrame() {
+            if (positionToggle == true) {
+                yPos += 0.03;
+                xPos -= 0.03;
+                zPos -= 0.03;
+                if (yPos > 3) {
+                    positionToggle = false;
+                }
+            } else if (positionToggle == false) {
+                yPos -= 0.03;
+                xPos += 0.03;
+                zPos += 0.03;
+                if (yPos < -3) {
+                    positionToggle = true;
+                }
+            }
+ 
+            firstLight.position.set(0, yPos, -1);
+            secondLight.position.set(xPos, 1, 1);
+            thirdLight.position.set(1, 0, zPos);
+
+        }
+
+        //--------------------------- animation support -----------------------------------
+
+        /* This function runs the animation by calling updateForFrame() then calling render().
+         * Finally, it arranges for itself to be called again to do the next frame.  When the
+         * value of animating is set to false, this function does not schedule the next frame,
+         * so the animation stops.
+         */
+        function doFrame() {
+            if (animating) {
+                updateForFrame();
+                render();
+                requestAnimationFrame(doFrame);
+            }
+        }
+
+        function doLightFrame() {
+            if (animatingLight) {
+                updateLightForFrame();
+                render();
+                requestAnimationFrame(doLightFrame);
+            }
+        }
+
+        /* Responds when the setting of the "Animate" checkbox is changed.  This
+         * function will start or stop the animation, depending on its setting.
+         */
+        function doAnimateCheckbox() {
+            var anim = document.getElementById("animate").checked;
+            if (anim != animating) {
+                animating = anim;
+                if (animating) {
+                    doFrame();
+                }
+            }
+        }
+
+        function doLightAnimateCheckbox() {
+            var animLight = document.getElementById("animateLight").checked;
+            if (animLight != animatingLight) {
+                animatingLight = animLight;
+                if (animatingLight) {
+                    doLightFrame();
+                }
+            }
+        }
+
+        //----------------------------- keyboard support ----------------------------------
+
+        /*  Responds to user's key press.  Here, it is used to rotate the model.
+         */
+        function doKey(event) {
+            var code = event.keyCode;
+            var rotated = true;
+            switch (code) {
+                case 37: model.rotation.y -= 0.03; break;    // left arrow
+                case 39: model.rotation.y += 0.03; break;    // right arrow
+                case 38: model.rotation.x -= 0.03; break;    // up arrow
+                case 40: model.rotation.x += 0.03; break;    // down arrow
+                case 33: model.rotation.z -= 0.03; break;    // page up
+                case 34: model.rotation.z += 0.03; break;    // page down
+                case 36: model.rotation.set(0.2, 0, 0); break;  // home
+                default: rotated = false;
+            }
+            if (rotated) {
+                event.preventDefault();  // Prevent keys from scrolling the page.
+                if (!animating || !animatingLight) { // (if an animation is running, no need for an extra render)
+                    render();
+                }
+            }
+        }
+
+
+
+        //----------------------------------------------------------------------------------
+
+        /**
+         *  This init() function is called when by the onload event when the document has loaded.
+         */
+        function init() {
+            try {
+                canvas = document.getElementById("glcanvas");
+                renderer = new THREE.WebGLRenderer({
+                    canvas: canvas,
+                    antialias: true
+                });
+            }
+            catch (e) {
+                document.getElementById("canvas-holder").innerHTML =
+                    "<h3><b>Sorry, WebGL is required but is not available.</b><h3>";
+                return;
+            }
+            document.addEventListener("keydown", doKey, false);
+            document.getElementById("animate").checked = false;
+            document.getElementById("animate").onchange = doAnimateCheckbox;
+            document.getElementById("animateLight").checked = false;
+            document.getElementById("animateLight").onchange = doLightAnimateCheckbox;
+            createWorld();
+            render();
+        }
+
+    </script>
+</head>
+<body onload="init()">
+
+    <h2>Three.js Animated Model</h2>
+
+    <p><b>Use Arrow, PageUp, PageDown, and Home keys to rotate the model.</b></p>
+
+    <p>
+        <label><input type="checkbox" id="animate">Animate</label>
+        <label><input type="checkbox" id="animateLight">Animate Light</label>
+    </p>
+
+    <div id="canvas-holder">
+        <canvas id="glcanvas" width="640" height="480"></canvas>
+    </div>
+
+</body>
+</html>
