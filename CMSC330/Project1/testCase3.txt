@@ -1,0 +1,23 @@
+Window "Calculator3" (300, 200) Layout Flow:
+ Label "Ans:";
+ Textfield 15;
+ Panel Layout Grid (4, 3, 5, 5):
+  Button "7";
+  Button "8";
+  Button "9";
+  Button "4";
+  Button "5";
+  Button "6";
+  Button "1";
+  Button "2";
+  Button "3";
+  Label "";
+  Button "0";
+ End; 
+ Panel Layout Flow:
+   Group
+     Radio "Rad";
+     Radio "Deg";
+   End;
+ End;
+End.
